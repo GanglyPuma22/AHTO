@@ -1,0 +1,34 @@
+{
+  "name": "ahto",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AHTO: test-matrix-driven integration testing across hardware, software, and services.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "LICENSE",
+    "docs",
+    "core",
+    "adapters",
+    "examples"
+  ],
+  "bin": {
+    "ahto-defect": "./core/emit_defect_record.mjs",
+    "ahto-summary": "./core/emit_run_summary.mjs"
+  },
+  "scripts": {
+    "check:notion-adapter": "node --check ./adapters/notion/notion_run.mjs",
+    "check:cdp-adapter": "node --check ./adapters/cdp/cdp_ui.mjs",
+    "check:example-json": "node -e \"const fs=require('fs'); ['examples/iot-dashboard/profile.json','examples/iot-dashboard/test-matrix.json','examples/iot-dashboard/expected-artifacts/defects/example-iot-dashboard-stale-alert/record.json','examples/iot-dashboard/expected-artifacts/runs/example-iot-dashboard-pass-01/summary.json'].forEach(p=>JSON.parse(fs.readFileSync(p,'utf8'))); console.log('example-json-ok')\"",
+    "check:surface": "npm pack --dry-run --json > .ahto-pack-dry-run.json && node -e \"const fs=require('fs'); const data=JSON.parse(fs.readFileSync('.ahto-pack-dry-run.json','utf8')); const files=(data[0]&&data[0].files||[]).map(f=>f.path); const must=['SKILL.md','README.md','LICENSE','docs/architecture.md','docs/packaged-workflow.md','core/emit_defect_record.mjs','core/emit_run_summary.mjs','adapters/notion/README.md','adapters/cdp/README.md','adapters/hardware-sync/README.md','examples/iot-dashboard/README.md','examples/iot-dashboard/test-matrix.json']; const forbidden=['references/','scripts/','output/']; must.forEach(p=>{ if(!files.includes(p)) throw new Error('missing packaged path: '+p); }); forbidden.forEach(prefix=>{ if(files.some(f=>f===prefix || f.startsWith(prefix))) throw new Error('forbidden packaged path: '+prefix); }); console.log('surface-ok')\" && rm -f .ahto-pack-dry-run.json",
+    "check": "npm run check:notion-adapter && npm run check:cdp-adapter && npm run check:example-json && npm run check:surface",
+    "check:private-residue": "echo 'Run the residue audit described in the packaging handoff before release.'"
+  },
+  "dependencies": {
+    "chrome-remote-interface": "^0.33.3"
+  }
+}

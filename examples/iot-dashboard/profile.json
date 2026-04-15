@@ -1,0 +1,57 @@
+{
+  "profileId": "iot-dashboard",
+  "description": "Sanitized example profile showing how AHTO wires a test-matrix source, hardware-sync gate, UI adapter, and core artifact outputs without live credentials.",
+  "testMatrix": {
+    "sourceAdapter": "notion",
+    "exampleFile": "./test-matrix.json",
+    "requiredColumns": [
+      "Test ID",
+      "Scenario",
+      "Steps",
+      "Expected UI",
+      "Expected Hardware",
+      "Scope",
+      "Preconditions",
+      "Pass/Fail signal",
+      "Timing budget",
+      "Browsers/Viewport",
+      "Result",
+      "Comments",
+      "Issue Link",
+      "Evidence"
+    ],
+    "optionalHintColumns": [
+      "UI Route",
+      "UI Target Hints",
+      "Selector Hints",
+      "UI Action Notes"
+    ]
+  },
+  "hardwareSync": {
+    "adapter": "hardware-sync",
+    "requiredBeforePass": true,
+    "failureClass": "environment-blocker",
+    "command": "./adapters/hardware-sync/example_gate.sh iot-dashboard"
+  },
+  "uiRuntime": {
+    "adapter": "cdp",
+    "hostEnv": "AHTO_CDP_HOST",
+    "portEnv": "AHTO_CDP_PORT",
+    "targetUrlContains": "/dashboard"
+  },
+  "coreOutputs": {
+    "defectEmitter": "./core/emit_defect_record.mjs",
+    "runSummaryEmitter": "./core/emit_run_summary.mjs"
+  },
+  "artifacts": {
+    "root": "./examples/iot-dashboard/expected-artifacts",
+    "defects": "./examples/iot-dashboard/expected-artifacts/defects",
+    "runs": "./examples/iot-dashboard/expected-artifacts/runs",
+    "screenshots": "./examples/iot-dashboard/expected-artifacts/screenshots"
+  },
+  "notes": [
+    "Use stable sample IDs in this example so reviewers can diff the files easily.",
+    "A live run would create timestamped output folders through the core emitters.",
+    "The browser startup strategy is intentionally external to the packaged repo."
+  ]
+}

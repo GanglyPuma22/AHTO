@@ -1,0 +1,23 @@
+{
+  "summaryId": "example-iot-dashboard-pass-01",
+  "createdAt": "2026-04-15T08:56:00.000Z",
+  "runId": "example-iot-dashboard-run-001",
+  "passNumber": 1,
+  "mode": "packaged-example",
+  "matrices": [
+    "IoT Dashboard Smoke Matrix"
+  ],
+  "rowsPassed": 1,
+  "rowsFailed": 1,
+  "rowsBlockedEnv": 0,
+  "rowsBlockedDefect": 0,
+  "rowsFlaky": 0,
+  "keyFindings": [
+    "The packaged profile shows how a hardware-sync gate, UI adapter, and core emitters fit together without live credentials.",
+    "A failing alerts-panel row produces a durable defect artifact while the pass still emits a summary for handoff."
+  ],
+  "defects": [
+    "../defects/example-iot-dashboard-stale-alert/record.json"
+  ],
+  "recommendation": "Review the sample defect contract, then replace the static matrix and placeholder evidence paths with project-specific adapters."
+}

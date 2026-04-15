@@ -1,0 +1,53 @@
+{
+  "matrixName": "IoT Dashboard Smoke Matrix",
+  "profileId": "iot-dashboard",
+  "rows": [
+    {
+      "testId": "IOT-DASH-001",
+      "scenario": "Dashboard overview shows the current gateway status after sync",
+      "steps": [
+        "Run the hardware-sync gate for the iot-dashboard profile.",
+        "Open the dashboard overview route.",
+        "Inspect the primary system status card."
+      ],
+      "expectedUi": "The dashboard shows a visible system-status card with the text Online and a current sync indicator.",
+      "expectedHardware": "The gateway and bridge report a synchronized runtime state before UI verification starts.",
+      "scope": "dashboard-overview",
+      "preconditions": "A CDP-accessible browser already has the application reachable at the dashboard route.",
+      "passFailSignal": "Pass when the system status card is visible and contains Online; fail otherwise.",
+      "timingBudget": "15s",
+      "browsersViewport": "Chromium desktop 1440x900",
+      "uiRoute": "/dashboard",
+      "uiTargetHints": "Use the existing dashboard tab if one is already open.",
+      "selectorHints": "main [data-testid=\"system-status\"]",
+      "uiActionNotes": "Capture a screenshot into expected-artifacts/screenshots/ after the assertion.",
+      "exampleOutputs": {
+        "screenshotPath": "./expected-artifacts/screenshots/IOT-DASH-001-dashboard-overview.png"
+      }
+    },
+    {
+      "testId": "IOT-DASH-002",
+      "scenario": "Alerts panel shows a sensor-offline banner when the bridge reports a disconnect",
+      "steps": [
+        "Run the hardware-sync gate for the iot-dashboard profile.",
+        "Open the alerts panel route.",
+        "Verify that the offline banner appears for the affected sensor within the timing budget."
+      ],
+      "expectedUi": "The alerts panel displays an offline banner for Kitchen Temperature within 30 seconds of the bridge disconnect event.",
+      "expectedHardware": "The bridge reports the sensor-offline condition and the synchronized runtime state remains valid for the pass.",
+      "scope": "alerts-panel",
+      "preconditions": "The dashboard route is reachable and the row has access to a simulated or known sensor-offline condition.",
+      "passFailSignal": "Pass when the offline banner appears within 30 seconds; fail when the panel remains in a healthy state or shows stale data.",
+      "timingBudget": "30s",
+      "browsersViewport": "Chromium desktop 1440x900",
+      "uiRoute": "/dashboard?panel=alerts",
+      "uiTargetHints": "Reuse the dashboard tab and switch to the alerts panel before checking the banner.",
+      "selectorHints": "[data-testid=\"sensor-offline-banner\"], [data-testid=\"alerts-panel\"]",
+      "uiActionNotes": "If the banner does not appear, capture a screenshot and emit a defect artifact.",
+      "exampleOutputs": {
+        "screenshotPath": "./expected-artifacts/screenshots/IOT-DASH-002-alerts-panel.png",
+        "defectRecordPath": "./expected-artifacts/defects/example-iot-dashboard-stale-alert/record.json"
+      }
+    }
+  ]
+}
