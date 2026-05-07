@@ -2,114 +2,201 @@
 
 > Test-matrix-driven integration testing across hardware, software, and services.
 
-AHTO is a public-safe, review-first repo for running structured integration tests from a **test-matrix**.
+AHTO is a matrix-driven testing framework for systems that span more than one layer at a time: UI, backend/services, and hardware or runtime state. Instead of treating each test like an isolated script, AHTO organizes a test pass around structured matrix rows, project profiles, hardware-sync gates, and durable run artifacts.
 
-The repo is now closer to a review-ready **v0.2** shape:
-- still public-safe and intentionally not published
-- stronger on contracts and orchestration than the earlier v0.1 shell
-- still honest about the remaining gap between package quality and live ecosystem maturity
+The repo includes:
+- core contracts for profiles, matrices, outcomes, and artifacts
+- a setup assistant for inspecting required runtime inputs
+- an offline review runner for exercising the orchestration flow locally
+- packaged adapters for Notion, CDP, and hardware-sync gates
+- a sanitized IoT dashboard example pack
 
-## Start here
+## Why AHTO exists
 
-If you are reviewing the repo for the first time, use this path:
+A lot of testing tools work well when the problem is narrow: one browser, one app, one layer of state. Things get messier when a workflow depends on several layers at once.
 
-1. [`docs/architecture.md`](docs/architecture.md) — what AHTO is, what belongs in core, and where adapters fit
-2. [`docs/matrix-lifecycle.md`](docs/matrix-lifecycle.md) — working matrices vs promoted checkpoints
-3. [`docs/modes-and-classification.md`](docs/modes-and-classification.md) — execution modes and richer row outcomes
-4. [`docs/setup-profile.md`](docs/setup-profile.md) — profile/setup posture and missing-input inspection
-5. [`docs/review-runner.md`](docs/review-runner.md) — the new offline orchestration lane
-6. [`examples/iot-dashboard/README.md`](examples/iot-dashboard/README.md) — sanitized end-to-end example pack
+AHTO is built for that messier case.
 
-## Public review surface
+The project is centered on a few simple ideas:
+- tests should be defined as rows in a matrix, not buried in ad hoc scripts
+- working matrices and regression checkpoints should be treated differently
+- run outcomes should be more honest than pass/fail
+- setup should be profile-driven instead of hardcoded into one environment
+- runs should leave behind durable artifacts that make the next step clearer
 
-The intended review surface is:
+## Core concepts
+
+### 1. Matrix-driven execution
+AHTO uses a test matrix as the source of truth for what a run is trying to validate. Each row can describe:
+- route or entry context
+- action intent
+- evidence expectations
+- timing expectations
+- supported outcome kinds
+
+### 2. Working matrices vs checkpoints
+AHTO distinguishes between:
+- **working matrices** for active iteration and discovery
+- **checkpoints** for promoted regression snapshots
+
+That separation matters when a product is still changing. A moving test list and a regression baseline are not the same thing.
+
+### 3. Richer result classification
+AHTO supports outcomes like:
+- `pass`
+- `product-defect`
+- `rig-blocked`
+- `environment-blocked`
+- `matrix-defect`
+- `framework-defect`
+- `ui-contract-defect`
+- `flaky`
+- `not-run`
+
+The goal is to preserve what actually happened instead of flattening everything into generic failure.
+
+### 4. Profile-driven setup
+AHTO does not assume one fixed environment. Profiles define the project-specific truth the runner needs, such as:
+- required environment inputs
+- execution modes
+- hardware-sync expectations
+- adapter wiring
+- artifact locations
+
+### 5. Durable artifacts
+Runs should produce useful outputs, not just terminal text. AHTO includes artifact emitters for:
+- defect records
+- run summaries
+- validation and planning outputs
+
+## What’s in this repo
 
 | Path | Purpose |
 | --- | --- |
-| [`SKILL.md`](SKILL.md) | skill entrypoint for tool/agent integration |
-| [`docs/`](docs/) | architecture, lifecycle, classification, setup, and workflow docs |
-| [`core/`](core/) | contracts, emitters, setup assistant, and review runner |
-| [`adapters/`](adapters/) | replaceable integration surfaces |
-| [`examples/`](examples/) | sanitized reference profiles, matrices, fixtures, and expected artifacts |
+| `core/` | contracts, setup assistant, review runner, and artifact emitters |
+| `adapters/` | packaged integration surfaces for Notion, CDP, and hardware-sync |
+| `docs/` | architecture, lifecycle, setup, classification, and workflow docs |
+| `examples/` | sanitized example profile, matrices, fixtures, and expected artifacts |
+| `SKILL.md` | skill-oriented entrypoint for agent/tool usage |
 
-Helpful v0.2 entry points inside that surface:
-- [`core/contracts.mjs`](core/contracts.mjs)
-- [`core/review_runner.mjs`](core/review_runner.mjs)
-- [`core/setup_assistant.mjs`](core/setup_assistant.mjs)
-- [`core/emit_defect_record.mjs`](core/emit_defect_record.mjs)
-- [`core/emit_run_summary.mjs`](core/emit_run_summary.mjs)
-- [`examples/iot-dashboard/matrices/checkpoints/smoke-checkpoint-v2026-04-24.json`](examples/iot-dashboard/matrices/checkpoints/smoke-checkpoint-v2026-04-24.json)
-- [`examples/iot-dashboard/fixture-results/checkpoint-review.json`](examples/iot-dashboard/fixture-results/checkpoint-review.json)
+## Quick start
 
-## What AHTO is trying to preserve
-
-AHTO is centered on a workflow, not a single integration:
-- preserve matrix-driven orchestration
-- preserve structured defect and run-summary artifacts
-- separate working-matrix evolution from checkpoint promotion
-- distinguish product defects from matrix/framework/rig/UI-contract issues
-- expose adapters instead of hardcoded private integrations
-- ship one sanitized reference example without turning it into the only worldview
-
-## What changed in the v0.2 repo shape
-
-Compared to the earlier packaging shell, this repo now includes:
-- a reusable contracts module for profile, matrix, lifecycle, mode, and outcome validation
-- a setup assistant for lightweight missing-input inspection/prompting
-- an offline review runner that validates contracts, executes the hardware gate, consumes fixture outcomes, and emits artifacts
-- lifecycle-aware example matrices for both working and checkpoint states
-- richer sample outputs that preserve matrix family / revision / checkpoint metadata and row-outcome taxonomy
-
-## Quick local review flow
-
-A reviewer can inspect the repo without live credentials, browser state, or hardware access:
-
-1. read the architecture/lifecycle/classification/setup docs
-2. inspect the IoT dashboard profile, working matrix, and checkpoint matrix
-3. inspect the fixture results and expected artifacts
-4. inspect the core runner/setup/contract surfaces
-5. optionally run the offline checks below
-
-## Local no-network verification
-
-Install dependencies once:
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-Then run the repo checks:
+Run the full local verification pass:
 
 ```bash
 npm run check
 ```
 
-Or run focused checks individually:
+That validates:
+- packaged adapter syntax
+- core module syntax
+- example JSON validity
+- setup inspection behavior
+- offline review runner behavior
+- packaged repo surface
+
+## Try the example flow
+
+### Inspect setup requirements
 
 ```bash
-npm run check:notion-adapter
-npm run check:cdp-adapter
-npm run check:example-json
-npm run check:setup-assistant
-npm run check:review-runner
-npm run check:surface
+node core/setup_assistant.mjs inspect \
+  --profile ./examples/iot-dashboard/profile.json
 ```
 
-These checks stay offline.
-They validate:
-- adapter syntax
-- example JSON validity
+JSON output:
+
+```bash
+node core/setup_assistant.mjs inspect \
+  --profile ./examples/iot-dashboard/profile.json \
+  --json
+```
+
+### Plan a run
+
+```bash
+node core/review_runner.mjs plan \
+  --profile ./examples/iot-dashboard/profile.json \
+  --matrix ./examples/iot-dashboard/matrices/checkpoints/smoke-checkpoint-v2026-04-24.json
+```
+
+### Execute the offline review run
+
+```bash
+AHTO_SYNC_OK=1 \
+node core/review_runner.mjs run \
+  --profile ./examples/iot-dashboard/profile.json \
+  --matrix ./examples/iot-dashboard/matrices/checkpoints/smoke-checkpoint-v2026-04-24.json \
+  --fixture ./examples/iot-dashboard/fixture-results/checkpoint-review.json \
+  --outDir ./.ahto-review-run
+```
+
+## Where to read next
+
+If you want the conceptual model first:
+1. [`docs/architecture.md`](docs/architecture.md)
+2. [`docs/matrix-lifecycle.md`](docs/matrix-lifecycle.md)
+3. [`docs/modes-and-classification.md`](docs/modes-and-classification.md)
+4. [`docs/setup-profile.md`](docs/setup-profile.md)
+5. [`docs/review-runner.md`](docs/review-runner.md)
+
+If you want the concrete example first:
+1. [`examples/iot-dashboard/README.md`](examples/iot-dashboard/README.md)
+2. [`examples/iot-dashboard/profile.json`](examples/iot-dashboard/profile.json)
+3. [`examples/iot-dashboard/matrices/working/smoke-working.json`](examples/iot-dashboard/matrices/working/smoke-working.json)
+4. [`examples/iot-dashboard/matrices/checkpoints/smoke-checkpoint-v2026-04-24.json`](examples/iot-dashboard/matrices/checkpoints/smoke-checkpoint-v2026-04-24.json)
+5. [`examples/iot-dashboard/fixture-results/checkpoint-review.json`](examples/iot-dashboard/fixture-results/checkpoint-review.json)
+
+## Adapters included here
+
+### Notion
+The Notion adapter supports using Notion as a matrix source and lightweight run-status surface.
+
+See:
+- [`adapters/notion/README.md`](adapters/notion/README.md)
+- [`adapters/notion/notion_run.mjs`](adapters/notion/notion_run.mjs)
+
+### CDP
+The CDP adapter provides a small helper for connecting to an already-running Chromium-based browser with remote debugging enabled.
+
+See:
+- [`adapters/cdp/README.md`](adapters/cdp/README.md)
+- [`adapters/cdp/cdp_ui.mjs`](adapters/cdp/cdp_ui.mjs)
+
+### Hardware sync
+The hardware-sync surface defines the contract for a project-specific preflight/sync gate.
+
+See:
+- [`docs/hardware-sync-gate.md`](docs/hardware-sync-gate.md)
+- [`adapters/hardware-sync/README.md`](adapters/hardware-sync/README.md)
+- [`adapters/hardware-sync/example_gate.sh`](adapters/hardware-sync/example_gate.sh)
+
+## Current status
+
+AHTO currently ships a real local example flow built around:
+- contracts
 - setup inspection
-- the offline review runner
-- the intended package surface
+- an offline review runner
+- packaged adapters
+- a sanitized example pack
 
-## Publishing note
+What it is good for today:
+- understanding the testing model
+- reviewing the orchestration surface
+- trying the offline example locally
+- adapting the structure to a real project
 
-`package.json` keeps `"private": true` on purpose.
-That prevents accidental npm publication while the repo shape and contracts are still being refined.
+What still depends on project-specific work:
+- live environment wiring
+- real hardware/runtime deployment flows
+- production-strength adapter coverage for arbitrary stacks
 
-## Current truthfulness note
+## License
 
-This repo is materially stronger than the v0.1 scaffold, but it should still be reviewed as:
-- **architecture-aligned and review-ready**
-- not yet proof of full live multi-adapter runtime maturity
+MIT
