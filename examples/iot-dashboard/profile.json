@@ -95,7 +95,7 @@
   "hardwareSync": {
     "adapter": "hardware-sync",
     "requiredBeforePass": true,
-    "failureClass": "environment-blocker",
+    "failureClass": "environment-blocked",
     "command": "./adapters/hardware-sync/example_gate.sh iot-dashboard"
   },
   "uiRuntime": {

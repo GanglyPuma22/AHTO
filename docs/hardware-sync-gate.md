@@ -34,7 +34,7 @@ The actual sync procedure varies across projects. Examples include:
 
 AHTO should not hardcode any one of these into the core.
 
-## v0.1 packaging rule
+## Packaging rule for the public-safe review surface
 Ship:
 - this contract,
 - a simple example gate script,

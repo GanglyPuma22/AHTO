@@ -31,6 +31,7 @@ function requiredArg(name) {
 
 function buildInputStatus(item) {
   const envValue = process.env[item.key];
+  const isPresent = Boolean(envValue);
   return {
     key: item.key,
     source: item.source || 'env',
@@ -38,8 +39,8 @@ function buildInputStatus(item) {
     description: item.description || '',
     example: item.example || '',
     defaultValue: item.defaultValue || '',
-    status: envValue ? 'present' : 'missing',
-    currentValuePreview: envValue ? `${String(envValue).slice(0, 4)}…` : '',
+    status: isPresent ? 'present' : 'missing',
+    hasCurrentValue: isPresent,
   };
 }
 

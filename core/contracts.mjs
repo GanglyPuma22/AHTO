@@ -195,10 +195,11 @@ export function validateMatrix(matrix, { matrixPath = 'matrix.json', profile = {
 
   const seen = new Set();
   (matrix?.rows || []).forEach((row, index) => {
-    if (seen.has(row?.testId)) {
-      errors.push(`${matrixPath}: duplicate testId "${row?.testId}".`);
+    const testId = hasText(row?.testId) ? row.testId : null;
+    if (testId && seen.has(testId)) {
+      errors.push(`${matrixPath}: duplicate testId "${testId}".`);
     }
-    seen.add(row?.testId);
+    if (testId) seen.add(testId);
     validateRow(row, index, metadata, errors, warnings);
   });
 
