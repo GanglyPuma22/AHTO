@@ -1,0 +1,37 @@
+{
+  "summaryId": "example-iot-dashboard-pass-01",
+  "createdAt": "2026-04-24T08:10:00.000Z",
+  "runId": "example-iot-dashboard-run-001",
+  "passNumber": 1,
+  "mode": "checkpoint",
+  "matrixId": "iot-dashboard-smoke-checkpoint-v2026-04-24",
+  "matrixFamily": "iot-dashboard-smoke",
+  "matrixRevision": "2026-04-24",
+  "lifecycleStage": "checkpoint",
+  "checkpointId": "iot-dashboard-smoke-v2026-04-24",
+  "matrices": [
+    "IoT Dashboard Smoke Matrix"
+  ],
+  "rowsPassed": 1,
+  "rowsFailed": 1,
+  "rowsBlockedEnv": 1,
+  "rowsBlockedDefect": 0,
+  "rowsFlaky": 0,
+  "rowsProductDefect": 1,
+  "rowsRigBlocked": 1,
+  "rowsEnvironmentBlocked": 0,
+  "rowsMatrixDefect": 0,
+  "rowsFrameworkDefect": 0,
+  "rowsUiContractDefect": 0,
+  "rowsNotRun": 0,
+  "keyFindings": [
+    "Checkpoint mode used checkpoint iot-dashboard-smoke-v2026-04-24 from family iot-dashboard-smoke.",
+    "The profile demonstrates lifecycle-aware checkpoint execution instead of a single floating matrix file.",
+    "The offline review runner can emit defects and summaries without needing live Notion, browser, or hardware credentials.",
+    "At least one row was explicitly marked rig-blocked instead of being silently dropped."
+  ],
+  "defects": [
+    "../defects/example-iot-dashboard-stale-alert/record.json"
+  ],
+  "recommendation": "Fix the alerts-panel defect, decide whether the recovery path should become a real rig capability, then rerun the checkpoint."
+}

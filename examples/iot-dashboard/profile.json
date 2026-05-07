@@ -1,0 +1,124 @@
+{
+  "profileId": "iot-dashboard",
+  "profileVersion": "0.2",
+  "description": "Sanitized example profile showing how AHTO v0.2 wires lifecycle-aware matrices, setup inspection, a hardware-sync gate, a UI adapter, and core artifact outputs without live credentials.",
+  "executionModes": [
+    "exploratory",
+    "checkpoint"
+  ],
+  "defaultMode": "checkpoint",
+  "setupInputs": [
+    {
+      "key": "AHTO_CDP_HOST",
+      "source": "env",
+      "required": true,
+      "description": "Hostname for an already-running Chromium CDP endpoint when doing live UI checks.",
+      "example": "localhost",
+      "defaultValue": "localhost"
+    },
+    {
+      "key": "AHTO_CDP_PORT",
+      "source": "env",
+      "required": true,
+      "description": "Port for the CDP endpoint used by the UI adapter.",
+      "example": "9222",
+      "defaultValue": "9222"
+    },
+    {
+      "key": "RUN_PARENT_PAGE_ID",
+      "source": "env",
+      "required": false,
+      "description": "Needed only when using the packaged Notion adapter to create/update live run pages.",
+      "example": "notion-page-id"
+    },
+    {
+      "key": "MATRIX_LIBRARY_PAGE_ID",
+      "source": "env",
+      "required": false,
+      "description": "Needed only when resolving live test-matrix pages from Notion.",
+      "example": "notion-page-id"
+    }
+  ],
+  "matrixLifecycle": {
+    "family": "iot-dashboard-smoke",
+    "workingMatrix": "./matrices/working/smoke-working.json",
+    "checkpoints": [
+      {
+        "checkpointId": "iot-dashboard-smoke-v2026-04-24",
+        "matrix": "./matrices/checkpoints/smoke-checkpoint-v2026-04-24.json"
+      }
+    ]
+  },
+  "classificationPolicy": {
+    "supportedOutcomeKinds": [
+      "pass",
+      "product-defect",
+      "rig-blocked",
+      "environment-blocked",
+      "matrix-defect",
+      "framework-defect",
+      "ui-contract-defect",
+      "flaky",
+      "not-run"
+    ],
+    "notes": [
+      "Rig limitations should stay visible as rig-blocked, not silently dropped.",
+      "UI-contract defects should stay distinguishable from product defects."
+    ]
+  },
+  "testMatrix": {
+    "sourceAdapter": "notion",
+    "exampleFile": "./test-matrix.json",
+    "requiredColumns": [
+      "Test ID",
+      "Scenario",
+      "Steps",
+      "Expected UI",
+      "Expected Hardware",
+      "Scope",
+      "Preconditions",
+      "Pass/Fail signal",
+      "Timing budget",
+      "Browsers/Viewport",
+      "Result",
+      "Comments",
+      "Issue Link",
+      "Evidence"
+    ],
+    "optionalHintColumns": [
+      "UI Route",
+      "UI Target Hints",
+      "Selector Hints",
+      "UI Action Notes"
+    ]
+  },
+  "hardwareSync": {
+    "adapter": "hardware-sync",
+    "requiredBeforePass": true,
+    "failureClass": "environment-blocked",
+    "command": "./adapters/hardware-sync/example_gate.sh iot-dashboard"
+  },
+  "uiRuntime": {
+    "adapter": "cdp",
+    "hostEnv": "AHTO_CDP_HOST",
+    "portEnv": "AHTO_CDP_PORT",
+    "targetUrlContains": "/dashboard"
+  },
+  "coreOutputs": {
+    "defectEmitter": "./core/emit_defect_record.mjs",
+    "runSummaryEmitter": "./core/emit_run_summary.mjs",
+    "reviewRunner": "./core/review_runner.mjs",
+    "setupAssistant": "./core/setup_assistant.mjs"
+  },
+  "artifacts": {
+    "root": "./expected-artifacts",
+    "defects": "./expected-artifacts/defects",
+    "runs": "./expected-artifacts/runs",
+    "screenshots": "./expected-artifacts/screenshots"
+  },
+  "notes": [
+    "A live project would replace the example gate and static fixtures with real adapters and evidence sources.",
+    "The review runner is intentionally offline-first; it strengthens orchestration review without pretending to prove live lab maturity.",
+    "The browser startup strategy remains external to the packaged repo."
+  ]
+}

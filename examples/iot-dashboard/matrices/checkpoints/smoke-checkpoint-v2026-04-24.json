@@ -1,0 +1,121 @@
+{
+  "matrixId": "iot-dashboard-smoke-checkpoint-v2026-04-24",
+  "matrixName": "IoT Dashboard Smoke Matrix",
+  "matrixFamily": "iot-dashboard-smoke",
+  "matrixRevision": "2026-04-24",
+  "checkpointId": "iot-dashboard-smoke-v2026-04-24",
+  "lifecycle": {
+    "stage": "checkpoint",
+    "checkpointId": "iot-dashboard-smoke-v2026-04-24",
+    "promotedFrom": "iot-dashboard-smoke-working"
+  },
+  "rows": [
+    {
+      "testId": "IOT-DASH-001",
+      "scenario": "Dashboard overview shows the current gateway status after sync",
+      "steps": [
+        "Run the hardware-sync gate for the iot-dashboard profile.",
+        "Open the dashboard overview route.",
+        "Inspect the primary system status card."
+      ],
+      "expectedUi": "The dashboard shows a visible system-status card with the text Online and a current sync indicator.",
+      "expectedHardware": "The gateway and bridge report a synchronized runtime state before UI verification starts.",
+      "scope": "dashboard-overview",
+      "preconditions": "A CDP-accessible browser already has the application reachable at the dashboard route.",
+      "passFailSignal": "Pass when the system status card is visible and contains Online; fail otherwise.",
+      "timingBudget": "15s",
+      "browsersViewport": "Chromium desktop 1440x900",
+      "entryRoute": "/dashboard",
+      "uiRoute": "/dashboard",
+      "uiTargetHints": "Use the existing dashboard tab if one is already open.",
+      "selectorHints": "main [data-testid=\"system-status\"]",
+      "actionIntent": "Verify the overview can still expose a stable, inspectable status card after sync.",
+      "uiActionNotes": "Capture a screenshot after the assertion.",
+      "evidenceExpectations": [
+        "Visible status card text",
+        "Screenshot of the overview",
+        "Hardware sync gate result"
+      ],
+      "supportedOutcomeKinds": [
+        "pass",
+        "product-defect",
+        "ui-contract-defect",
+        "environment-blocked"
+      ],
+      "exampleOutputs": {
+        "screenshotPath": "./expected-artifacts/screenshots/IOT-DASH-001-dashboard-overview.png"
+      }
+    },
+    {
+      "testId": "IOT-DASH-002",
+      "scenario": "Alerts panel shows a sensor-offline banner when the bridge reports a disconnect",
+      "steps": [
+        "Run the hardware-sync gate for the iot-dashboard profile.",
+        "Open the alerts panel route.",
+        "Verify that the offline banner appears for the affected sensor within the timing budget."
+      ],
+      "expectedUi": "The alerts panel displays an offline banner for Kitchen Temperature within 30 seconds of the bridge disconnect event.",
+      "expectedHardware": "The bridge reports the sensor-offline condition and the synchronized runtime state remains valid for the pass.",
+      "scope": "alerts-panel",
+      "preconditions": "The dashboard route is reachable and the row has access to a simulated or known sensor-offline condition.",
+      "passFailSignal": "Pass when the offline banner appears within 30 seconds; fail when the panel remains in a healthy state or shows stale data.",
+      "timingBudget": "30s",
+      "browsersViewport": "Chromium desktop 1440x900",
+      "entryRoute": "/dashboard?panel=alerts",
+      "uiRoute": "/dashboard?panel=alerts",
+      "uiTargetHints": "Reuse the dashboard tab and switch to the alerts panel before checking the banner.",
+      "selectorHints": "[data-testid=\"sensor-offline-banner\"], [data-testid=\"alerts-panel\"]",
+      "actionIntent": "Prove the alerts UI and the underlying bridge condition stay correlated within the expected timing window.",
+      "uiActionNotes": "If the banner does not appear, capture a screenshot and emit a defect artifact.",
+      "evidenceExpectations": [
+        "Alerts panel screenshot",
+        "Bridge disconnect evidence",
+        "Timing observation"
+      ],
+      "supportedOutcomeKinds": [
+        "pass",
+        "product-defect",
+        "ui-contract-defect",
+        "matrix-defect",
+        "environment-blocked"
+      ],
+      "issueRoutingHint": "frontend-alerts",
+      "exampleOutputs": {
+        "screenshotPath": "./expected-artifacts/screenshots/IOT-DASH-002-alerts-panel.png",
+        "defectRecordPath": "./expected-artifacts/defects/example-iot-dashboard-stale-alert/record.json"
+      }
+    },
+    {
+      "testId": "IOT-DASH-003",
+      "scenario": "Sensor reconnection clears the offline banner after a rig-triggered recovery path",
+      "steps": [
+        "Start from the offline-banner condition.",
+        "Trigger the rig-level recovery/reconnect path.",
+        "Verify that the offline banner clears within the timing budget."
+      ],
+      "expectedUi": "The alerts panel clears the offline banner within 20 seconds of a successful recovery action.",
+      "expectedHardware": "The rig exposes a remote recovery path and the bridge reports the recovered state.",
+      "scope": "alerts-recovery",
+      "preconditions": "A remotely invokable recovery path exists for the example rig or simulator.",
+      "passFailSignal": "Pass when the banner clears in time; rig-blocked if the recovery path is unavailable; product-defect if the banner remains stale after a valid recovery.",
+      "timingBudget": "20s",
+      "browsersViewport": "Chromium desktop 1440x900",
+      "entryRoute": "/dashboard?panel=alerts",
+      "uiRoute": "/dashboard?panel=alerts",
+      "uiTargetHints": "Stay on the alerts panel after inducing the disconnect state.",
+      "selectorHints": "[data-testid=\"sensor-offline-banner\"], [data-testid=\"alerts-panel\"]",
+      "actionIntent": "Keep rig limitations visible instead of deleting hard rows from the checkpoint.",
+      "uiActionNotes": "If the rig cannot trigger recovery remotely, mark the row rig-blocked and preserve the row in the checkpoint discussion.",
+      "evidenceExpectations": [
+        "Proof that the recovery path was or was not remotely available",
+        "Alerts panel screenshot after attempted recovery"
+      ],
+      "supportedOutcomeKinds": [
+        "pass",
+        "rig-blocked",
+        "product-defect",
+        "environment-blocked"
+      ]
+    }
+  ]
+}
