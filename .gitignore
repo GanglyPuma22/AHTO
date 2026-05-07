@@ -11,3 +11,7 @@ yarn-error.log*
 pnpm-debug.log*
 *.tgz
 .ahto-pack-dry-run.json
+.ahto-review-run/
+.ahto-review-run.json
+.ahto-setup-inspect.json
+.tmp/

@@ -1,8 +1,15 @@
 # IoT dashboard example
 
-This directory is a public-safe reference example for AHTO v0.1.
+This directory is a public-safe reference example for AHTO v0.2.
 
-It shows one packaged scenario without requiring:
+It now demonstrates more than the earlier v0.1 packaging shell:
+- profile-driven setup inputs
+- an evolving working matrix
+- an explicit checkpoint matrix
+- richer row-outcome classification
+- an offline review runner that emits artifacts from fixture outcomes
+
+It still does **not** require:
 - a live Notion workspace
 - a logged-in browser profile
 - private device scripts
@@ -10,76 +17,75 @@ It shows one packaged scenario without requiring:
 
 ## What is included
 
-- `profile.json` — sanitized profile wiring for the test-matrix source, hardware-sync gate, UI adapter, and artifact outputs
-- `test-matrix.json` — two example test-matrix rows using the field shape expected by the packaged Notion adapter
-- `expected-artifacts/` — stable sample outputs showing where defect and run-summary artifacts land
+- `profile.json` — sanitized profile wiring, setup inputs, lifecycle metadata, adapter references, and artifact outputs
+- `test-matrix.json` — the current working-matrix example for compatibility and quick review
+- `matrices/working/` — working matrix assets for exploratory use
+- `matrices/checkpoints/` — promoted checkpoint assets for regression-style review
+- `fixture-results/` — offline row outcomes used by the review runner
+- `expected-artifacts/` — stable sample outputs showing defect + run-summary contracts
 
-## How this maps to the packaged repo
+## Suggested review path
 
-### Test-matrix source
+1. inspect `profile.json`
+2. compare `matrices/working/` vs `matrices/checkpoints/`
+3. read `../../docs/matrix-lifecycle.md`
+4. read `../../docs/modes-and-classification.md`
+5. read `../../docs/review-runner.md`
+6. inspect `expected-artifacts/`
 
-`test-matrix.json` demonstrates the row shape that a test-matrix source adapter should produce.
+## How this maps to the repo
 
-The packaged Notion adapter in [`../../adapters/notion/`](../../adapters/notion/) would normally read and update rows with fields such as:
-- `Test ID`
-- `Scenario`
-- `Steps`
-- `Expected UI`
-- `Expected Hardware`
-- `Result`
-- `Comments`
-- `Issue Link`
-- `Evidence`
-- optional UI hint columns
+### Lifecycle-aware matrices
+The example no longer implies that one floating matrix file is enough.
+It shows:
+- working-matrix evolution under `matrices/working/`
+- explicit checkpoint promotion under `matrices/checkpoints/`
 
-This example keeps those fields as static JSON so the workflow can be reviewed offline.
+### Setup inspection
+The profile declares required setup inputs so AHTO can explain what is missing without hardcoding secrets or personal defaults.
 
-### Hardware-sync gate
-
-`profile.json` points to the packaged example gate contract at [`../../adapters/hardware-sync/`](../../adapters/hardware-sync/).
-
-In a live project, that gate would verify that the device, bridge, or runtime has been synchronized before row execution starts.
-In this example, the command shape is documented without bundling a private deployment flow.
-
-### UI/runtime adapter
-
-`profile.json` also shows how the packaged CDP adapter in [`../../adapters/cdp/`](../../adapters/cdp/) plugs into a profile.
-
-The example rows include:
-- `uiRoute`
-- `uiTargetHints`
-- `selectorHints`
-- `uiActionNotes`
-
-Those fields give the UI adapter enough context to locate an existing page target, perform a lightweight assertion, and capture evidence.
+### Review runner
+The fixture file under `fixture-results/` lets the review runner exercise the orchestration contract offline.
+That is a deliberate v0.2 step toward a real runner story.
 
 ### Core outputs
-
 The sample files under `expected-artifacts/` mirror the contract shape produced by:
-- [`../../core/emit_defect_record.mjs`](../../core/emit_defect_record.mjs)
-- [`../../core/emit_run_summary.mjs`](../../core/emit_run_summary.mjs)
-
-The sample IDs are intentionally stable for review.
-A live run would generate timestamped output folders.
+- `../../core/emit_defect_record.mjs`
+- `../../core/emit_run_summary.mjs`
+- `../../core/review_runner.mjs`
 
 ## Example operator flow
 
-1. load `profile.json`
-2. materialize rows from `test-matrix.json` or from a real test-matrix adapter with the same field shape
-3. run the hardware-sync gate before the pass
-4. execute row checks through the CDP adapter or another UI/runtime adapter
-5. capture screenshots or notes into `expected-artifacts/screenshots/`
-6. emit structured defect records for actionable failures
-7. emit a pass-level summary into `expected-artifacts/runs/`
+Inspect setup posture:
 
-## Why the artifacts are static
+```bash
+node core/setup_assistant.mjs inspect --profile ./examples/iot-dashboard/profile.json
+```
 
-This example is meant to answer the question, “What does a packaged AHTO profile look like?”
+Plan the checkpoint run:
 
-Because it is static, a reviewer can inspect:
-- test-matrix row shape
-- adapter boundaries
-- expected artifact locations
-- defect and summary contracts
+```bash
+node core/review_runner.mjs plan \
+  --profile ./examples/iot-dashboard/profile.json \
+  --matrix ./examples/iot-dashboard/matrices/checkpoints/smoke-checkpoint-v2026-04-24.json
+```
 
-without needing credentials, browser state, or hardware access.
+Execute the offline review run:
+
+```bash
+AHTO_SYNC_OK=1 \
+node core/review_runner.mjs run \
+  --profile ./examples/iot-dashboard/profile.json \
+  --matrix ./examples/iot-dashboard/matrices/checkpoints/smoke-checkpoint-v2026-04-24.json \
+  --fixture ./examples/iot-dashboard/fixture-results/checkpoint-review.json \
+  --outDir ./.tmp/ahto-review-run
+```
+
+## Why the artifacts are still static
+
+This example is still meant to answer: “What does a packaged AHTO profile and run shape look like?”
+
+The repo is stronger now because it includes a real offline orchestration lane.
+But it is still honest about the gap between:
+- reviewable package quality
+- and full live environment maturity

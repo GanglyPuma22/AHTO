@@ -1,10 +1,13 @@
 {
-  "matrixId": "iot-dashboard-smoke-working",
-  "matrixName": "IoT Dashboard Smoke Matrix (Working)",
+  "matrixId": "iot-dashboard-smoke-checkpoint-v2026-04-24",
+  "matrixName": "IoT Dashboard Smoke Matrix",
   "matrixFamily": "iot-dashboard-smoke",
-  "matrixRevision": "working-2026-04-24",
+  "matrixRevision": "2026-04-24",
+  "checkpointId": "iot-dashboard-smoke-v2026-04-24",
   "lifecycle": {
-    "stage": "working"
+    "stage": "checkpoint",
+    "checkpointId": "iot-dashboard-smoke-v2026-04-24",
+    "promotedFrom": "iot-dashboard-smoke-working"
   },
   "rows": [
     {
@@ -38,7 +41,10 @@
         "product-defect",
         "ui-contract-defect",
         "environment-blocked"
-      ]
+      ],
+      "exampleOutputs": {
+        "screenshotPath": "./expected-artifacts/screenshots/IOT-DASH-001-dashboard-overview.png"
+      }
     },
     {
       "testId": "IOT-DASH-002",
@@ -72,7 +78,12 @@
         "ui-contract-defect",
         "matrix-defect",
         "environment-blocked"
-      ]
+      ],
+      "issueRoutingHint": "frontend-alerts",
+      "exampleOutputs": {
+        "screenshotPath": "./expected-artifacts/screenshots/IOT-DASH-002-alerts-panel.png",
+        "defectRecordPath": "./expected-artifacts/defects/example-iot-dashboard-stale-alert/record.json"
+      }
     },
     {
       "testId": "IOT-DASH-003",
@@ -93,7 +104,7 @@
       "uiRoute": "/dashboard?panel=alerts",
       "uiTargetHints": "Stay on the alerts panel after inducing the disconnect state.",
       "selectorHints": "[data-testid=\"sensor-offline-banner\"], [data-testid=\"alerts-panel\"]",
-      "actionIntent": "Keep rig limitations visible instead of deleting hard rows from the matrix.",
+      "actionIntent": "Keep rig limitations visible instead of deleting hard rows from the checkpoint.",
       "uiActionNotes": "If the rig cannot trigger recovery remotely, mark the row rig-blocked and preserve the row in the checkpoint discussion.",
       "evidenceExpectations": [
         "Proof that the recovery path was or was not remotely available",

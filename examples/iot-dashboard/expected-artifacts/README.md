@@ -15,4 +15,8 @@ This directory shows the intended artifact layout for the sanitized IoT dashboar
 - `runs/example-iot-dashboard-pass-01/summary.json`
 - `runs/example-iot-dashboard-pass-01/summary.md`
 
-These files mirror the shape of the packaged core emitters while using stable example IDs for reviewability.
+These files now reflect the richer v0.2 contract shape:
+- mode + lifecycle metadata
+- matrix family / revision / checkpoint id
+- richer row-outcome counts
+- compatibility rollups retained for legacy consumers
